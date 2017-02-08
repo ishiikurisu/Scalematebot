@@ -1,0 +1,6 @@
+C:\Users\neuro\Documents\Lab\src\github.com\ishiikurisu\Scalematebot\Scalematebot\bin\Debug\Scalematebot.exe.config
+C:\Users\neuro\Documents\Lab\src\github.com\ishiikurisu\Scalematebot\Scalematebot\bin\Debug\Scalematebot.exe
+C:\Users\neuro\Documents\Lab\src\github.com\ishiikurisu\Scalematebot\Scalematebot\bin\Debug\Scalematebot.pdb
+C:\Users\neuro\Documents\Lab\src\github.com\ishiikurisu\Scalematebot\Scalematebot\obj\Debug\Scalematebot.csprojResolveAssemblyReference.cache
+C:\Users\neuro\Documents\Lab\src\github.com\ishiikurisu\Scalematebot\Scalematebot\obj\Debug\Scalematebot.exe
+C:\Users\neuro\Documents\Lab\src\github.com\ishiikurisu\Scalematebot\Scalematebot\obj\Debug\Scalematebot.pdb
