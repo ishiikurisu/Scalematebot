@@ -10,3 +10,4 @@ C:\Users\neuro\Documents\Lab\src\github.com\ishiikurisu\Scalematebot\Scalematebo
 C:\Users\neuro\Documents\Lab\src\github.com\ishiikurisu\Scalematebot\Scalematebot\bin\Debug\Newtonsoft.Json.xml
 C:\Users\neuro\Documents\Lab\src\github.com\ishiikurisu\Scalematebot\Scalematebot\bin\Debug\System.Net.Http.Formatting.xml
 C:\Users\neuro\Documents\Lab\src\github.com\ishiikurisu\Scalematebot\Scalematebot\bin\Debug\Telegram.Bot.xml
+C:\Users\neuro\Documents\Lab\src\github.com\ishiikurisu\Scalematebot\Scalematebot\bin\Debug\Scalemate.dll

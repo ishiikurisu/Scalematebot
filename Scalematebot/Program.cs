@@ -15,7 +15,7 @@ namespace Scalematebot
     class Program
     {
         public static TelegramBotClient Bot;
-        public static MainView View = new MainView();
+        public static MainView View;
         public static bool TestMode = false;
         public static List<string> Answers;
 
@@ -47,9 +47,6 @@ namespace Scalematebot
             return bot;
         }
 
-        /// <summary>
-        /// Copied from https://github.com/MrRoundRobin/telegram.bot.examples/blob/master/Telegram.Bot.Examples.Echo/Program.cs
-        /// </summary>
         private static async void BotOnMessageReceived(object sender, MessageEventArgs messageEventArgs)
         {
             var message = messageEventArgs.Message;
@@ -59,9 +56,9 @@ namespace Scalematebot
             if (TestMode)
             {
                 Answers.Add(message.Text);
-                if (View.Running)
+                View.Set(message.Text);
+                if (!View.Ended())
                 {
-                    // TODO Set next question
                     SetQuestion(message);
                 }
                 else
@@ -77,8 +74,10 @@ namespace Scalematebot
             }
             else if (message.Text.StartsWith("/start"))
             {
+                var userId = message.Chat.Id.ToString();
                 TestMode = true;
                 Answers = new List<string>();
+                View = new MainView(userId);
                 View.Start();
                 SetQuestion(message);
             }
@@ -94,9 +93,9 @@ namespace Scalematebot
 
         private static void SetQuestion(Message message)
         {
-            var question = View.Questions[View.Index];
-            var keyboardButtons = View.Answers.Select(it => new KeyboardButton(it)).ToArray();
-            var keyboard = new ReplyKeyboardMarkup(new[] { keyboardButtons });
+            var question = View.Question;
+            var keyboardButtons = View.Answers.Select(it => new[] { new KeyboardButton(it) }).ToArray();
+            var keyboard = new ReplyKeyboardMarkup(keyboardButtons);
             var msg = Bot.SendTextMessageAsync(message.Chat.Id, question, replyMarkup: keyboard).Result;
             View.Next();
         }

@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Scalemate;
+using Scalematebot.Model;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,40 +10,43 @@ namespace Scalematebot.View
 {
     public class MainView
     {
-        #region Quiz parameters
-        public string[] Questions { get; private set; } = new[]
-        {
-            "Are you ok?",
-            "Do you want to be here?",
-            "Is there anything I can do for you?"
-        };
-
-        public string[] Answers { get; private set; } = new[]
-        {
-            "Yes",
-            "No"
-        };
-
+        #region Properties
+        public Tester Mate { get; private set; }
+        public string Question { get; private set; }
+        public string[] Questions { get; private set; }
+        public string[] Answers { get; private set; }
         public int Index { get; private set; }
         public bool Running { get; private set; }
+        #endregion
+
+        #region Constructor
+        public MainView(string id)
+        {
+            Mate = new Tester(new MainModel(), "procast-student-pt", id);
+        }
         #endregion
 
         #region Methods
         public void Start()
         {
-            Index = 0;
-            Running = true;
+            Question = Mate.Question;
+            Answers = Mate.Options.Take(Mate.NoOptions).ToArray();
+        }
+
+        public void Set(string answer)
+        {
+            // TODO Store answer
         }
 
         public bool Ended()
         {
-            return !Running;
+            return Mate.Ended;
         }
 
         public void Next()
         {
-            Index++;
-            Running = Index < Questions.Length;
+            Mate.Continue();
+            Start();
         }
         #endregion
     }
