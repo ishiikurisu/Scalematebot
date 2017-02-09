@@ -15,10 +15,13 @@ namespace Scalematebot
 {
     class Program
     {
-        public static TelegramBotClient Bot;
-        public static Dictionary<long, MainView> Conversations;
+        static TelegramBotClient Bot;
+        static Dictionary<long, MainView> Conversations = new Dictionary<long, MainView>();
 
-        public static void Main(string[] args)
+        /// <summary>
+        /// Entry point for the application
+        /// </summary>
+        static void Main(string[] args)
         {
             // Preparing bot
             Console.WriteLine("# Hello from Scalematebot!");
@@ -35,8 +38,12 @@ namespace Scalematebot
             Bot.StopReceiving();
         }
 
-        // TODO TEST THIS!!!
-        public static TelegramBotClient CreateBot(string token)
+        /// <summary>
+        /// Creates a new Telegram bot.
+        /// </summary>
+        /// <param name="token">The Telegram API for this bot.</param>
+        /// <returns>The bot with the appropriate callbacks.</returns>
+        static TelegramBotClient CreateBot(string token)
         {
             var bot = new TelegramBotClient(token);
 
@@ -46,19 +53,30 @@ namespace Scalematebot
             return bot;
         }
 
-        private static async void BotOnMessageReceived(object sender, MessageEventArgs messageEventArgs)
+        /// <summary>
+        /// Called when the bot receives a message. Will relate each user to a different
+        /// test application.
+        /// </summary>
+        static void BotOnMessageReceived(object sender, MessageEventArgs messageEventArgs)
         {
+            // Checking message is valid
             var message = messageEventArgs.Message;
-
             if (message == null || message.Type != MessageType.TextMessage) return;
 
+            // Answering according to message
             var id = message.Chat.Id;
+            var view = new MainView(Bot, message);
+
             if (Conversations.ContainsKey(id))
             {
-                MainView view = new MainView(Bot, message);
-                Conversations.TryGetValue(id, out view);
-                view.OnMessageReceived(message);
+                view = Conversations[id];
             }
+            else
+            {
+                Conversations[id] = view;
+            }
+
+            view.OnMessageReceived(message);
         }
     }
 }

@@ -5,6 +5,9 @@ using System.Linq;
 
 namespace Scalematebot.Model
 {
+    /// <summary>
+    /// Copied from the original implementation, found on the ScalemateForms project.
+    /// </summary>
     public class MainModel : IDataAccessLayer
     {
         public string[] Load(string path)
