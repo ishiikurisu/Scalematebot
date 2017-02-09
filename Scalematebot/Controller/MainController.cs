@@ -20,18 +20,25 @@ namespace Scalematebot.Controller
         public string[] Answers { get; private set; }
         public int Index { get; private set; }
         public bool Running { get; private set; }
+        public Queue<string> Steps { get; private set; }
+        public string CurrentStep { get; private set; }
         #endregion
 
         #region Constructor
         public MainController(MainModel model, MainView view)
         {
+            // MVC setup
             Model = model;
             View = view;
             Mate = new Tester(Model, "procast-student-pt", View.Id);
+
+            // Setting steps
+            Steps = GetSteps();
+            CurrentStep = NextStep();
         }
         #endregion
 
-        #region Methods
+        #region Test methods
         public void Start()
         {
             Question = Mate.Question;
@@ -48,10 +55,39 @@ namespace Scalematebot.Controller
             return Mate.Ended;
         }
 
-        public void Next()
+        public void NextQuestion()
         {
             Mate.Continue();
             Start();
+        }
+
+        public string GetInstructions()
+        {
+            return Mate.BeginningInstructions.Aggregate("", (box, it) => $"{box} {it}");
+        }
+        #endregion
+
+        #region Steps methods
+        public Queue<string> GetSteps()
+        {
+            Queue<string> steps = new Queue<string>();
+
+            if (Mate.BeginningInstructions != null)
+                steps.Enqueue("instructions");
+            // TODO Add Survey
+            steps.Enqueue("test");
+
+            return steps;
+        }
+
+        public string NextStep()
+        {
+            string outlet = null;
+            if (Steps.Count > 0)
+            {
+                outlet = Steps.Dequeue();
+            }
+            return outlet;
         }
         #endregion
     }

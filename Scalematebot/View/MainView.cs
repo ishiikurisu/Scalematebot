@@ -11,10 +11,11 @@ namespace Scalematebot.View
 {
     public class MainView
     {
-        public static TelegramBotClient Bot;
+        public TelegramBotClient Bot;
         public MainController Controller;
         public bool TestMode = false;
         public List<string> Answers;
+        public string CurrentStep;
         public string Id;
 
         /// <summary>
@@ -37,23 +38,7 @@ namespace Scalematebot.View
         {
             if (TestMode)
             {
-                Answers.Add(message.Text);
-                Controller.Set(message.Text);
-                if (!Controller.Ended())
-                {
-                    SetQuestion(message);
-                }
-                else
-                {
-                    TestMode = false;
-                    var thanks = "Thank you for helping us!";
-                    await Bot.SendTextMessageAsync(message.Chat.Id, thanks, replyMarkup: new ReplyKeyboardHide());
-                    // TODO Save answers
-                    foreach (var answer in Answers)
-                    {
-                        Console.WriteLine(answer);
-                    }
-                }
+                Evaluate(message);
             }
             else if (message.Text.StartsWith("/test"))
             {
@@ -62,7 +47,8 @@ namespace Scalematebot.View
                 Answers = new List<string>();
                 Controller = new MainController(new MainModel(), this);
                 Controller.Start();
-                SetQuestion(message);
+                CurrentStep = Controller.CurrentStep;
+                Evaluate(message);
             }
             else
             {
@@ -86,7 +72,57 @@ namespace Scalematebot.View
             var keyboardButtons = Controller.Answers.Select(it => new[] { new KeyboardButton(it) }).ToArray();
             var keyboard = new ReplyKeyboardMarkup(keyboardButtons);
             await Bot.SendTextMessageAsync(message.Chat.Id, question, replyMarkup: keyboard);
-            Controller.Next();
+            Controller.NextQuestion();
+        }
+
+        /// <summary>
+        /// Displays the instructions on the screen.
+        /// </summary>
+        /// <param name="message">The original message.</param>
+        private async void DisplayInstructions(Message message)
+        {
+            var instructions = Controller.GetInstructions();
+            await Bot.SendTextMessageAsync(message.Chat.Id, instructions, replyMarkup: new ReplyKeyboardHide());
+            CurrentStep = Controller.NextStep();
+            Evaluate(message);
+        }
+
+        /// <summary>
+        /// Evaluates the message content according to the test's state.
+        /// </summary>
+        /// <param name="message">The message sent by the user.</param>
+        private async void Evaluate(Message message)
+        {
+            Answers.Add(message.Text);
+            Controller.Set(message.Text);
+            if (!Controller.Ended())
+            {
+                switch (CurrentStep)
+                {
+                    case "instructions":
+                        DisplayInstructions(message);
+                        break;
+                    case "survey":
+                        // TODO Implement survey
+                        break;
+                    case "test":
+                        SetQuestion(message);
+                        break;
+                    default:
+                        throw new InvalidOperationException();
+                }
+            }
+            else
+            {
+                TestMode = false;
+                var thanks = "Thank you for helping us!";
+                await Bot.SendTextMessageAsync(message.Chat.Id, thanks, replyMarkup: new ReplyKeyboardHide());
+                // TODO Save answers
+                foreach (var answer in Answers)
+                {
+                    Console.WriteLine(answer);
+                }
+            }
         }
     }
 }
