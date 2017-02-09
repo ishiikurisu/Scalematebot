@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Scalematebot.View;
+using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -13,9 +15,13 @@ namespace Scalematebot
     class Program
     {
         public static TelegramBotClient Bot;
+        public static MainView View = new MainView();
+        public static bool TestMode = false;
+        public static List<string> Answers;
 
         public static void Main(string[] args)
         {
+            // Preparing bot
             Console.WriteLine("# Hello from Scalematebot!");
             var token = Console.ReadLine();
             Bot = CreateBot(token);
@@ -50,91 +56,49 @@ namespace Scalematebot
 
             if (message == null || message.Type != MessageType.TextMessage) return;
 
-            if (message.Text.StartsWith("/inline")) // send inline keyboard
+            if (TestMode)
             {
-                await Bot.SendChatActionAsync(message.Chat.Id, ChatAction.Typing);
-
-                var keyboard = new InlineKeyboardMarkup(new[]
+                Answers.Add(message.Text);
+                if (View.Running)
                 {
-                    new[] // first row
+                    // TODO Set next question
+                    SetQuestion(message);
+                }
+                else
+                {
+                    TestMode = false;
+                    var thanks = "Thank you for helping us!";
+                    await Bot.SendTextMessageAsync(message.Chat.Id, thanks, replyMarkup: new ReplyKeyboardHide());
+                    foreach (var answer in Answers)
                     {
-                        new InlineKeyboardButton("1.1"),
-                        new InlineKeyboardButton("1.2"),
-                    },
-                    new[] // second row
-                    {
-                        new InlineKeyboardButton("2.1"),
-                        new InlineKeyboardButton("2.2"),
+                        Console.WriteLine(answer);
                     }
-                });
-
-                await Task.Delay(500); // simulate longer running task
-
-                await Bot.SendTextMessageAsync(message.Chat.Id, "Choose",
-                    replyMarkup: keyboard);
-            }
-            else if (message.Text.StartsWith("/keyboard")) // send custom keyboard
-            {
-                var keyboard = new ReplyKeyboardMarkup(new[]
-                {
-                    new [] // first row
-                    {
-                        new KeyboardButton("1.1"),
-                        new KeyboardButton("1.2"),
-                    },
-                    new [] // last row
-                    {
-                        new KeyboardButton("2.1"),
-                        new KeyboardButton("2.2"),
-                    }
-                });
-
-                await Bot.SendTextMessageAsync(message.Chat.Id, "Choose",
-                    replyMarkup: keyboard);
-            }
-            else if (message.Text.StartsWith("/photo")) // send a photo
-            {
-                await Bot.SendChatActionAsync(message.Chat.Id, ChatAction.UploadPhoto);
-
-                const string file = @"<FilePath>";
-
-                var fileName = file.Split('\\').Last();
-
-                using (var fileStream = new FileStream(file, FileMode.Open, FileAccess.Read, FileShare.Read))
-                {
-                    var fts = new FileToSend(fileName, fileStream);
-
-                    await Bot.SendPhotoAsync(message.Chat.Id, fts, "Nice Picture");
                 }
             }
-            else if (message.Text.StartsWith("/request")) // request location or contact
+            else if (message.Text.StartsWith("/start"))
             {
-                var keyboard = new ReplyKeyboardMarkup(new[]
-                {
-                    new KeyboardButton("Location")
-                    {
-                        RequestLocation = true
-                    },
-                    new KeyboardButton("Contact")
-                    {
-                        RequestContact = true
-                    },
-                });
-
-                await Bot.SendTextMessageAsync(message.Chat.Id, "Who or Where are you?", replyMarkup: keyboard);
+                TestMode = true;
+                Answers = new List<string>();
+                View.Start();
+                SetQuestion(message);
             }
             else
             {
                 var usage = @"Usage:
-/inline   - send inline keyboard
-/keyboard - send custom keyboard
-/photo    - send a photo
-/request  - request location or contact
+/start - Starts a new test
 ";
-
-                await Bot.SendTextMessageAsync(message.Chat.Id, usage,
-                    replyMarkup: new ReplyKeyboardHide());
+                await Bot.SendTextMessageAsync(message.Chat.Id, usage, replyMarkup: new ReplyKeyboardHide());
             }
+            
+        }
+
+        private static void SetQuestion(Message message)
+        {
+            var question = View.Questions[View.Index];
+            var keyboardButtons = View.Answers.Select(it => new KeyboardButton(it)).ToArray();
+            var keyboard = new ReplyKeyboardMarkup(new[] { keyboardButtons });
+            var msg = Bot.SendTextMessageAsync(message.Chat.Id, question, replyMarkup: keyboard).Result;
+            View.Next();
         }
     }
 }
