@@ -115,7 +115,7 @@ namespace Scalematebot.View
             else
             {
                 TestMode = false;
-                var thanks = "Thank you for helping us!";
+                var thanks = Controller.GetThanks();
                 await Bot.SendTextMessageAsync(message.Chat.Id, thanks, replyMarkup: new ReplyKeyboardHide());
                 // TODO Save answers
                 foreach (var answer in Answers)

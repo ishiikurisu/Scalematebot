@@ -82,12 +82,14 @@ namespace Scalematebot.Controller
 
         public string NextStep()
         {
-            string outlet = null;
-            if (Steps.Count > 0)
-            {
-                outlet = Steps.Dequeue();
-            }
-            return outlet;
+            return (Steps.Count > 0) ? Steps.Dequeue() : null;
+        }
+
+        public string GetThanks()
+        {
+            return (Mate.EndingInstructions != null) ? 
+                Mate.EndingInstructions.Aggregate("", (box, it) => $"{box} {it}") : 
+                "Obrigada por participar!";
         }
         #endregion
     }
