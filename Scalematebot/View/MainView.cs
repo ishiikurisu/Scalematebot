@@ -26,7 +26,7 @@ namespace Scalematebot.View
         {
             Bot = bot;
             // Obtain an unique ID for this view
-            Id = "???";
+            Id = message.Chat.Username;
         }
 
         /// <summary>
@@ -65,7 +65,11 @@ namespace Scalematebot.View
         /// <param name="message">The original message, the one to be answered.</param>
         private async void SetQuestion(Message message)
         {
-            var keyboardButtons = Controller.Answers.Select(it => new[] { new KeyboardButton(it) }).ToArray();
+            int i = 0;
+            var keyboardButtons = Controller.Options
+                                            .Select(it => $"{++i}. {it}")
+                                            .Select(it => new[] { new KeyboardButton(it) })
+                                            .ToArray();
             var keyboard = new ReplyKeyboardMarkup(keyboardButtons);
             await Bot.SendTextMessageAsync(message.Chat.Id, Controller.Question, replyMarkup: keyboard);
             Controller.NextQuestion();
@@ -87,7 +91,6 @@ namespace Scalematebot.View
         /// </summary>
         private async void ConductSurvey(Message message)
         {
-            // TODO Implement survey logic
             var question = Controller.NextSurveyQuestion();
             if (question != null)
             {
@@ -115,7 +118,6 @@ namespace Scalematebot.View
                         DisplayInstructions(message);
                         break;
                     case "survey":
-                        // TODO Implement survey
                         ConductSurvey(message);
                         break;
                     case "test":
@@ -131,6 +133,7 @@ namespace Scalematebot.View
                 var thanks = Controller.GetThanks();
                 await Bot.SendTextMessageAsync(message.Chat.Id, thanks, replyMarkup: new ReplyKeyboardHide());
                 // TODO Save answers
+                Controller.Save();
             }
         }
     }

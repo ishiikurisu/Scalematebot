@@ -12,17 +12,21 @@ namespace Scalematebot.Controller
     public class MainController
     {
         #region Properties
-        public MainModel Model { get; private set; }
-        public MainView View { get; private set; }
-        public Tester Mate { get; private set; }
-        public string Question { get; private set; }
-        public Queue<string> Survey { get; private set; }
-        public string[] Questions { get; private set; }
-        public string[] Answers { get; private set; }
-        public int Index { get; private set; }
-        public bool Running { get; private set; }
-        public Queue<string> Steps { get; private set; }
-        public string CurrentStep { get; private set; }
+        public MainModel Model { get; private set; } = null;
+        public MainView View { get; private set; } = null;
+        public Tester Mate { get; private set; } = null;
+        public string Question { get; private set; } = null;
+        public Queue<string> Survey { get; private set; } = null;
+        public Queue<string> SurveyAnswers { get; private set; } = null;
+        public string[] Questions { get; private set; } = null;
+        public string[] Options { get; private set; } = null;
+        public Queue<string> Answers { get; private set; } = null;
+        public int Index { get; private set; } = -1;
+        public bool Running { get; private set; } = false;
+        public Queue<string> Steps { get; private set; } = null;
+        public string CurrentStep { get; private set; } = null;
+        public bool FirstSurvey = true;
+        public bool FirstQuestion = true;
         #endregion
 
         #region Constructor
@@ -37,32 +41,59 @@ namespace Scalematebot.Controller
             Steps = GetSteps();
             CurrentStep = NextStep();
         }
+        #endregion
 
+        #region General stuff
         public void Start()
         {
             // Preparing test
             Question = Mate.Question;
-            Answers = Mate.Options.Take(Mate.NoOptions).ToArray();
+            Options = Mate.Options.Take(Mate.NoOptions).ToArray();
+            Answers = new Queue<string>();
+            FirstQuestion = true;
 
             // Preparing survey
+            FirstSurvey = true;
             Survey = new Queue<string>(Mate.SurveyQuestions);
+            SurveyAnswers = new Queue<string>();
         }
-        #endregion
+        
 
-        #region Test methods
         public void Set(string step, string answer)
         {
             switch (step)
             {
                 case "survey":
+                    if (FirstSurvey)
+                        FirstSurvey = false;
+                    else
+                        SurveyAnswers.Enqueue(answer);
+                    break;
                 case "test":
-                    Console.WriteLine($"{step}: {answer}");
+                    if (FirstQuestion)
+                        FirstQuestion = false;
+                    else
+                        Mate.Listen(int.Parse(answer[0].ToString()) - 1);
                     break;
             }
-            // TODO Store answer
-            // Don't store the first answer!
         }
 
+        public void Save()
+        {
+            // Cleaning answers
+            if (Mate.SurveyQuestions != null)
+            {
+                Mate.SurveyAnswers = SurveyAnswers.ToArray();
+            }
+
+            // TODO Discover why it is not storing stuff correctly
+            // Storing answers on memory
+            var results = Mate.CalculateResults();
+            Console.WriteLine(results);
+        }
+        #endregion
+
+        #region Test methods
         public bool Ended()
         {
             return Mate.Ended;
