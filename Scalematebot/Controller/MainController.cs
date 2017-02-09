@@ -16,6 +16,7 @@ namespace Scalematebot.Controller
         public MainView View { get; private set; }
         public Tester Mate { get; private set; }
         public string Question { get; private set; }
+        public Queue<string> Survey { get; private set; }
         public string[] Questions { get; private set; }
         public string[] Answers { get; private set; }
         public int Index { get; private set; }
@@ -36,18 +37,30 @@ namespace Scalematebot.Controller
             Steps = GetSteps();
             CurrentStep = NextStep();
         }
+
+        public void Start()
+        {
+            // Preparing test
+            Question = Mate.Question;
+            Answers = Mate.Options.Take(Mate.NoOptions).ToArray();
+
+            // Preparing survey
+            Survey = new Queue<string>(Mate.SurveyQuestions);
+        }
         #endregion
 
         #region Test methods
-        public void Start()
+        public void Set(string step, string answer)
         {
-            Question = Mate.Question;
-            Answers = Mate.Options.Take(Mate.NoOptions).ToArray();
-        }
-
-        public void Set(string answer)
-        {
+            switch (step)
+            {
+                case "survey":
+                case "test":
+                    Console.WriteLine($"{step}: {answer}");
+                    break;
+            }
             // TODO Store answer
+            // Don't store the first answer!
         }
 
         public bool Ended()
@@ -67,15 +80,23 @@ namespace Scalematebot.Controller
         }
         #endregion
 
+        #region Survey methods
+
+        public string NextSurveyQuestion()
+        {
+            return (Survey.Count > 0) ? Survey.Dequeue() : null;
+        }
+        #endregion
+
         #region Steps methods
         public Queue<string> GetSteps()
         {
             Queue<string> steps = new Queue<string>();
 
-            if (Mate.BeginningInstructions != null)
-                steps.Enqueue("instructions");
             if (Mate.SurveyQuestions != null)
                 steps.Enqueue("survey");
+            if (Mate.BeginningInstructions != null)
+                steps.Enqueue("instructions");
             steps.Enqueue("test");
 
             return steps;

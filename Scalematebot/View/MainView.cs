@@ -14,7 +14,6 @@ namespace Scalematebot.View
         public TelegramBotClient Bot;
         public MainController Controller;
         public bool TestMode = false;
-        public List<string> Answers;
         public string CurrentStep;
         public string Id;
 
@@ -36,6 +35,7 @@ namespace Scalematebot.View
         /// <param name="message">The message sent by the user.</param>
         public async void OnMessageReceived(Message message)
         {
+            // TODO Add /about message to explain this research.
             if (TestMode)
             {
                 Evaluate(message);
@@ -44,7 +44,6 @@ namespace Scalematebot.View
             {
                 var userId = message.Chat.Id.ToString();
                 TestMode = true;
-                Answers = new List<string>();
                 Controller = new MainController(new MainModel(), this);
                 Controller.Start();
                 CurrentStep = Controller.CurrentStep;
@@ -66,12 +65,9 @@ namespace Scalematebot.View
         /// <param name="message">The original message, the one to be answered.</param>
         private async void SetQuestion(Message message)
         {
-            // TODO Implement instructions
-            // TODO Implement survey
-            var question = Controller.Question;
             var keyboardButtons = Controller.Answers.Select(it => new[] { new KeyboardButton(it) }).ToArray();
             var keyboard = new ReplyKeyboardMarkup(keyboardButtons);
-            await Bot.SendTextMessageAsync(message.Chat.Id, question, replyMarkup: keyboard);
+            await Bot.SendTextMessageAsync(message.Chat.Id, Controller.Question, replyMarkup: keyboard);
             Controller.NextQuestion();
         }
 
@@ -91,10 +87,17 @@ namespace Scalematebot.View
         /// </summary>
         private async void ConductSurvey(Message message)
         {
-            Console.WriteLine("Conducting survey");
             // TODO Implement survey logic
-            CurrentStep = Controller.NextStep();
-            Evaluate(message);
+            var question = Controller.NextSurveyQuestion();
+            if (question != null)
+            {
+                await Bot.SendTextMessageAsync(message.Chat.Id, question);
+            }
+            else
+            {
+                CurrentStep = Controller.NextStep();
+                Evaluate(message);
+            }
         }
 
         /// <summary>
@@ -103,8 +106,7 @@ namespace Scalematebot.View
         /// <param name="message">The message sent by the user.</param>
         private async void Evaluate(Message message)
         {
-            Answers.Add(message.Text);
-            Controller.Set(message.Text);
+            Controller.Set(CurrentStep, message.Text);
             if (!Controller.Ended())
             {
                 switch (CurrentStep)
@@ -129,10 +131,6 @@ namespace Scalematebot.View
                 var thanks = Controller.GetThanks();
                 await Bot.SendTextMessageAsync(message.Chat.Id, thanks, replyMarkup: new ReplyKeyboardHide());
                 // TODO Save answers
-                foreach (var answer in Answers)
-                {
-                    Console.WriteLine(answer);
-                }
             }
         }
     }
