@@ -1,4 +1,5 @@
-﻿using Scalematebot.View;
+﻿using Scalematebot.Controller;
+using Scalematebot.View;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -15,9 +16,7 @@ namespace Scalematebot
     class Program
     {
         public static TelegramBotClient Bot;
-        public static MainView View;
-        public static bool TestMode = false;
-        public static List<string> Answers;
+        public static Dictionary<long, MainView> Conversations;
 
         public static void Main(string[] args)
         {
@@ -36,12 +35,12 @@ namespace Scalematebot
             Bot.StopReceiving();
         }
 
+        // TODO TEST THIS!!!
         public static TelegramBotClient CreateBot(string token)
         {
             var bot = new TelegramBotClient(token);
 
             // Registering callbacks
-            // TODO Create callbacks
             bot.OnMessage += BotOnMessageReceived;
 
             return bot;
@@ -53,51 +52,13 @@ namespace Scalematebot
 
             if (message == null || message.Type != MessageType.TextMessage) return;
 
-            if (TestMode)
+            var id = message.Chat.Id;
+            if (Conversations.ContainsKey(id))
             {
-                Answers.Add(message.Text);
-                View.Set(message.Text);
-                if (!View.Ended())
-                {
-                    SetQuestion(message);
-                }
-                else
-                {
-                    TestMode = false;
-                    var thanks = "Thank you for helping us!";
-                    await Bot.SendTextMessageAsync(message.Chat.Id, thanks, replyMarkup: new ReplyKeyboardHide());
-                    foreach (var answer in Answers)
-                    {
-                        Console.WriteLine(answer);
-                    }
-                }
+                MainView view = new MainView(Bot, message);
+                Conversations.TryGetValue(id, out view);
+                view.OnMessageReceived(message);
             }
-            else if (message.Text.StartsWith("/start"))
-            {
-                var userId = message.Chat.Id.ToString();
-                TestMode = true;
-                Answers = new List<string>();
-                View = new MainView(userId);
-                View.Start();
-                SetQuestion(message);
-            }
-            else
-            {
-                var usage = @"Usage:
-/start - Starts a new test
-";
-                await Bot.SendTextMessageAsync(message.Chat.Id, usage, replyMarkup: new ReplyKeyboardHide());
-            }
-            
-        }
-
-        private static void SetQuestion(Message message)
-        {
-            var question = View.Question;
-            var keyboardButtons = View.Answers.Select(it => new[] { new KeyboardButton(it) }).ToArray();
-            var keyboard = new ReplyKeyboardMarkup(keyboardButtons);
-            var msg = Bot.SendTextMessageAsync(message.Chat.Id, question, replyMarkup: keyboard).Result;
-            View.Next();
         }
     }
 }
