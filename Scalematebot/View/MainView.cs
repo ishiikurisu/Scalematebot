@@ -78,11 +78,21 @@ namespace Scalematebot.View
         /// <summary>
         /// Displays the instructions on the screen.
         /// </summary>
-        /// <param name="message">The original message.</param>
         private async void DisplayInstructions(Message message)
         {
             var instructions = Controller.GetInstructions();
             await Bot.SendTextMessageAsync(message.Chat.Id, instructions, replyMarkup: new ReplyKeyboardHide());
+            CurrentStep = Controller.NextStep();
+            Evaluate(message);
+        }
+
+        /// <summary>
+        /// Collects data for the survey part.
+        /// </summary>
+        private async void ConductSurvey(Message message)
+        {
+            Console.WriteLine("Conducting survey");
+            // TODO Implement survey logic
             CurrentStep = Controller.NextStep();
             Evaluate(message);
         }
@@ -104,6 +114,7 @@ namespace Scalematebot.View
                         break;
                     case "survey":
                         // TODO Implement survey
+                        ConductSurvey(message);
                         break;
                     case "test":
                         SetQuestion(message);

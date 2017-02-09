@@ -74,7 +74,8 @@ namespace Scalematebot.Controller
 
             if (Mate.BeginningInstructions != null)
                 steps.Enqueue("instructions");
-            // TODO Add Survey
+            if (Mate.SurveyQuestions != null)
+                steps.Enqueue("survey");
             steps.Enqueue("test");
 
             return steps;
