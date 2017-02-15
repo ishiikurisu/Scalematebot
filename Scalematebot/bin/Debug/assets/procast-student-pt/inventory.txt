@@ -1,11 +1,11 @@
 5
-Eu comumente me encontro realizando taredas que eu pretendia fazer dias atrás.
+Eu comumente me encontro realizando tarefas que eu pretendia fazer dias atrás.
 Extremamente não característico
 Moderadamente não característico
 Neutro
 Moderadamente característico
 Extremamente característico
-I não faço meus trabalhos até os dias em que eu tenho que entregá-los.
+Eu não faço meus trabalhos até os dias em que eu tenho que entregá-los.
 Extremamente não característico
 Moderadamente não característico
 Neutro
@@ -23,7 +23,7 @@ Moderadamente não característico
 Neutro
 Moderadamente característico
 Extremamente característico
-Uma carta pode ficar quieta durante dias depois que eu a escrevi antes de eu enviá-la.
+Uma carta pode permanecer intocada durante dias depois que eu a escrevi antes de eu enviá-la.
 Extremamente não característico
 Moderadamente não característico
 Neutro
@@ -35,7 +35,7 @@ Moderadamente não característico
 Neutro
 Moderadamente característico
 Extremamente característico
-Até mesmo com trabalhos que requiram poucam exceto sentar e fazê-las, eu vejo que elas dificilmente são feitas durante por dias.
+Até mesmo com trabalhos que requerem pouco além de sentar e fazê-las, eu vejo que elas dificilmente são feitas durante dias.
 Extremamente não característico
 Moderadamente não característico
 Neutro
@@ -59,7 +59,7 @@ Moderadamente não característico
 Neutro
 Moderadamente característico
 Extremamente característico
-*Quando me preparando para sair, eu dificilmente me encontro tendo que fazer algo de última hora.
+*Quando estou me preparando para sair, eu dificilmente me encontro tendo que fazer algo de última hora.
 Extremamente não característico
 Moderadamente não característico
 Neutro

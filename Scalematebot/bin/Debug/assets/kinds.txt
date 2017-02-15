@@ -1,10 +1,5 @@
-﻿depression Depressão
-depression-en Depression
-anxiety Ansiedade
-anxiety-en Anxiety
-edinburgh Inventário de Edinburgh
-edinburgh-en Edinburgh's Inventory
-pcl-m PCL-M
-stroopemocao Stroop Emocional
+﻿edinburgh Inventário de Edinburgh
 procast-student Procastinator Student
 procast-student-pt Procastinador Estudantil
+anxiety Inventário de Ansiedade de Beck
+depression Inventário de Depressão de Beck
