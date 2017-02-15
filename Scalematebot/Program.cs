@@ -1,15 +1,9 @@
-﻿using Scalematebot.Controller;
-using Scalematebot.View;
+﻿using Scalematebot.View;
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
 using Telegram.Bot;
 using Telegram.Bot.Args;
-using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
-using Telegram.Bot.Types.ReplyMarkups;
 
 namespace Scalematebot
 {

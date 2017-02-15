@@ -4,11 +4,23 @@ using Scalematebot.View;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Scalematebot.Controller
 {
+    /// <summary>
+    /// A test on this controller is performed by running `Start` and then acting 
+    /// according to each step. After the steps are completed, don't forget to `Save`.
+    /// 
+    /// The instructions step will only display the instructions message. 
+    /// 
+    /// The survey step will do the survey. Try to get the next survey question by running
+    /// `NextSurveyQuestion`. If the gotten question is null, then it is time for the next
+    /// step. Else, display the question and collect the answer using `Set`.
+    /// 
+    /// The test step will run Scalemate as we know it. Get the `Options` and the `Question`,
+    /// display them, and go to the `NextQuestion`. This controller will end when there are 
+    /// no more questions to display.
+    /// </summary>
     public class MainController
     {
         #region Properties
@@ -27,6 +39,7 @@ namespace Scalematebot.Controller
         public string CurrentStep { get; private set; } = null;
         public bool FirstSurvey = true;
         public bool FirstQuestion = true;
+        public bool LastQuestion = false;
         #endregion
 
         #region Constructor
@@ -46,8 +59,6 @@ namespace Scalematebot.Controller
         #region General stuff
         public void Start()
         {
-            Console.WriteLine("-- Starting new test!");
-            
             // Preparing test
             Question = Mate.Question;
             Options = Mate.Options.Take(Mate.NoOptions).ToArray();
@@ -59,7 +70,6 @@ namespace Scalematebot.Controller
             Survey = new Queue<string>(Mate.SurveyQuestions);
             SurveyAnswers = new List<string>();
         }
-        
 
         public void Set(string step, string answer)
         {
@@ -67,25 +77,15 @@ namespace Scalematebot.Controller
             {
                 case "survey":
                     if (FirstSurvey)
-                    {
                         FirstSurvey = false;
-                    }
                     else
-                    {
                         SurveyAnswers.Add(answer);
-                        Console.WriteLine($"{step} {answer}");
-                    }
                     break;
                 case "test":
                     if (FirstQuestion)
-                    {
                         FirstQuestion = false;
-                    }
                     else
-                    {
                         Mate.Listen(int.Parse(answer[0].ToString()) - 1);
-                        Console.WriteLine($"{step} {answer}");
-                    }
                     break;
             }
         }
@@ -94,45 +94,45 @@ namespace Scalematebot.Controller
         {
             // Cleaning answers
             if (Mate.SurveyQuestions != null)
-            {
                 Mate.SurveyAnswers = SurveyAnswers.ToArray();
-                Console.WriteLine(SurveyAnswers.Aggregate("Survey:", (box, it) => $"{box}\n{it}"));
-            }
-            Console.WriteLine(Mate.Answers.Aggregate("Answers:", (box, it) => $"{box}\n{it}"));
 
-            // TODO Discover why it is not storing stuff correctly
             // Storing answers on memory
             var results = Mate.CalculateResults();
             Console.WriteLine(results);
         }
-        #endregion
-
-        #region Test methods
-        public bool Ended()
-        {
-            return Mate.Ended;
-        }
 
         public void NextQuestion()
         {
-            Mate.Continue();
+            if (!LastQuestion)
+            {
+                Mate.Continue();
+                Question = Mate.Question;
+                Options = Mate.Options.Take(Mate.NoOptions).ToArray();
+            }
         }
 
+        public bool Ended()
+        {
+            if (Mate.Ended)
+                if (LastQuestion)
+                    return true;
+                else
+                    LastQuestion = true;
+            return false;
+        }
+        #endregion
+
+        #region Step stuff
         public string GetInstructions()
         {
             return Mate.BeginningInstructions.Aggregate("", (box, it) => $"{box} {it}");
         }
-        #endregion
-
-        #region Survey methods
 
         public string NextSurveyQuestion()
         {
             return (Survey.Count > 0) ? Survey.Dequeue() : null;
         }
-        #endregion
 
-        #region Steps methods
         public Queue<string> GetSteps()
         {
             Queue<string> steps = new Queue<string>();

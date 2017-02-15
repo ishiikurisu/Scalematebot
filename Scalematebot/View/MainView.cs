@@ -1,7 +1,6 @@
 ﻿using Scalematebot.Controller;
 using Scalematebot.Model;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using Telegram.Bot;
 using Telegram.Bot.Types;
@@ -25,7 +24,6 @@ namespace Scalematebot.View
         public MainView(TelegramBotClient bot, Message message)
         {
             Bot = bot;
-            // Obtain an unique ID for this view
             Id = message.Chat.Username;
         }
 
@@ -139,7 +137,6 @@ namespace Scalematebot.View
                 TestMode = false;
                 var thanks = Controller.GetThanks();
                 await Bot.SendTextMessageAsync(message.Chat.Id, thanks, replyMarkup: new ReplyKeyboardHide());
-                // TODO Save answers
                 Controller.Save();
             }
         }
