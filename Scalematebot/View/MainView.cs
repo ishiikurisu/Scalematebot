@@ -33,7 +33,6 @@ namespace Scalematebot.View
         /// <param name="message">The message sent by the user.</param>
         public async void OnMessageReceived(Message message)
         {
-            // TODO Add /about message to explain this research.
             if (TestMode)
             {
                 Evaluate(message);
@@ -46,10 +45,17 @@ namespace Scalematebot.View
                 CurrentStep = Controller.CurrentStep;
                 Evaluate(message);
             }
+            else if (message.Text.StartsWith("/about"))
+            {
+                // TODO Add /about message to explain this research.
+                var help = "???";
+                await Bot.SendTextMessageAsync(message.Chat.Id, help, replyMarkup: new ReplyKeyboardHide());
+            }
             else
             {
                 var usage = @"Uso:
-/test - Começar um novo teste
+/test - Começar um novo teste.
+/about - Mostra informações sobre o Bot e sobre a pesquisa sendo realizada.
 ";
                 await Bot.SendTextMessageAsync(message.Chat.Id, usage, replyMarkup: new ReplyKeyboardHide());
             }
