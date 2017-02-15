@@ -17,10 +17,10 @@ namespace Scalematebot.Controller
         public Tester Mate { get; private set; } = null;
         public string Question { get; private set; } = null;
         public Queue<string> Survey { get; private set; } = null;
-        public Queue<string> SurveyAnswers { get; private set; } = null;
+        public List<string> SurveyAnswers { get; private set; } = null;
         public string[] Questions { get; private set; } = null;
         public string[] Options { get; private set; } = null;
-        public Queue<string> Answers { get; private set; } = null;
+        public List<string> Answers { get; private set; } = null;
         public int Index { get; private set; } = -1;
         public bool Running { get; private set; } = false;
         public Queue<string> Steps { get; private set; } = null;
@@ -46,16 +46,18 @@ namespace Scalematebot.Controller
         #region General stuff
         public void Start()
         {
+            Console.WriteLine("-- Starting new test!");
+            
             // Preparing test
             Question = Mate.Question;
             Options = Mate.Options.Take(Mate.NoOptions).ToArray();
-            Answers = new Queue<string>();
+            Answers = new List<string>();
             FirstQuestion = true;
 
             // Preparing survey
             FirstSurvey = true;
             Survey = new Queue<string>(Mate.SurveyQuestions);
-            SurveyAnswers = new Queue<string>();
+            SurveyAnswers = new List<string>();
         }
         
 
@@ -65,15 +67,25 @@ namespace Scalematebot.Controller
             {
                 case "survey":
                     if (FirstSurvey)
+                    {
                         FirstSurvey = false;
+                    }
                     else
-                        SurveyAnswers.Enqueue(answer);
+                    {
+                        SurveyAnswers.Add(answer);
+                        Console.WriteLine($"{step} {answer}");
+                    }
                     break;
                 case "test":
                     if (FirstQuestion)
+                    {
                         FirstQuestion = false;
+                    }
                     else
+                    {
                         Mate.Listen(int.Parse(answer[0].ToString()) - 1);
+                        Console.WriteLine($"{step} {answer}");
+                    }
                     break;
             }
         }
@@ -84,7 +96,9 @@ namespace Scalematebot.Controller
             if (Mate.SurveyQuestions != null)
             {
                 Mate.SurveyAnswers = SurveyAnswers.ToArray();
+                Console.WriteLine(SurveyAnswers.Aggregate("Survey:", (box, it) => $"{box}\n{it}"));
             }
+            Console.WriteLine(Mate.Answers.Aggregate("Answers:", (box, it) => $"{box}\n{it}"));
 
             // TODO Discover why it is not storing stuff correctly
             // Storing answers on memory

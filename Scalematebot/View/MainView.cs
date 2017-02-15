@@ -42,7 +42,6 @@ namespace Scalematebot.View
             }
             else if (message.Text.StartsWith("/test"))
             {
-                var userId = message.Chat.Id.ToString();
                 TestMode = true;
                 Controller = new MainController(new MainModel(), this);
                 Controller.Start();
@@ -65,13 +64,21 @@ namespace Scalematebot.View
         /// <param name="message">The original message, the one to be answered.</param>
         private async void SetQuestion(Message message)
         {
+            // Setting options
             int i = 0;
             var keyboardButtons = Controller.Options
                                             .Select(it => $"{++i}. {it}")
                                             .Select(it => new[] { new KeyboardButton(it) })
                                             .ToArray();
             var keyboard = new ReplyKeyboardMarkup(keyboardButtons);
-            await Bot.SendTextMessageAsync(message.Chat.Id, Controller.Question, replyMarkup: keyboard);
+
+            // Setting question
+            // TODO Move this question logic to controller
+            var question = Controller.Question;
+            if (question[0] == '*') question = question.Substring(1);
+
+            // Drawing
+            await Bot.SendTextMessageAsync(message.Chat.Id, question, replyMarkup: keyboard);
             Controller.NextQuestion();
         }
 

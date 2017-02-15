@@ -16,7 +16,7 @@ namespace Scalematebot
     class Program
     {
         static TelegramBotClient Bot;
-        static Dictionary<long, MainView> Conversations = new Dictionary<long, MainView>();
+        static Dictionary<string, MainView> Conversations = new Dictionary<string, MainView>();
 
         /// <summary>
         /// Entry point for the application
@@ -64,19 +64,14 @@ namespace Scalematebot
             if (message == null || message.Type != MessageType.TextMessage) return;
 
             // Answering according to message
-            var id = message.Chat.Id;
-            var view = new MainView(Bot, message);
+            var id = message.Chat.Username;
 
-            if (Conversations.ContainsKey(id))
+            if (!Conversations.ContainsKey(id))
             {
-                view = Conversations[id];
-            }
-            else
-            {
-                Conversations[id] = view;
+                Conversations[id] = new MainView(Bot, message);
             }
 
-            view.OnMessageReceived(message);
+            Conversations[id].OnMessageReceived(message);
         }
     }
 }
