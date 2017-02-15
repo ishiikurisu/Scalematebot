@@ -116,7 +116,6 @@ namespace Scalematebot.Controller
         public void NextQuestion()
         {
             Mate.Continue();
-            Start();
         }
 
         public string GetInstructions()
