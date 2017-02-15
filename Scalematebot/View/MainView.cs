@@ -48,7 +48,10 @@ namespace Scalematebot.View
             else if (message.Text.StartsWith("/about"))
             {
                 // TODO Add /about message to explain this research.
-                var help = "???";
+                var help = "Este bot foi implementado para a condução de uma pesquisa "
+                         + "do Laboratório de Neurociência e Comportamento da Universidade "
+                         + "de Brasília. Esclarecer quaisquer dúvidas mandando e-mail para "
+                         + "Cristiano Silva Jr. <cristianoalvesjr@gmail.com>.";
                 await Bot.SendTextMessageAsync(message.Chat.Id, help, replyMarkup: new ReplyKeyboardHide());
             }
             else
