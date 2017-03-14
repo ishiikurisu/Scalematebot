@@ -58,7 +58,12 @@ namespace Scalematebot
             if (message == null || message.Type != MessageType.TextMessage) return;
 
             // Answering according to message
-            var id = message.Chat.Username;
+            var id = message.Chat.Id.ToString();
+
+            if (message.Chat.Username != null)
+            {
+                id = message.Chat.Username;
+            }
 
             if (!Conversations.ContainsKey(id))
             {
